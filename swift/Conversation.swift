@@ -62,10 +62,20 @@ public class Conversation {
     self.toolManager = toolManager
   }
 
-  deinit {
-    if let handle = handle {
+  /// Releases the underlying native session synchronously.
+  ///
+  /// LiteRT-LM allows only one session per engine. Call this when finished with a
+  /// conversation so the next `createConversation` can succeed without waiting for ARC.
+  /// Safe to call multiple times.
+  public func close() {
+    if let handle {
       litert_lm_conversation_delete(handle)
+      self.handle = nil
     }
+  }
+
+  deinit {
+    close()
   }
 
   /// Sends a message to the model and returns the response. This is a synchronous call.

@@ -128,6 +128,17 @@ public actor Engine {
     self.handle = engine
   }
 
+  /// Releases the native engine and its GPU/CPU resources synchronously.
+  ///
+  /// Close all active conversations before calling this. Safe to call multiple times.
+  /// After `close()`, call `initialize()` again to load the model with the same config.
+  public func close() {
+    if let handle {
+      litert_lm_engine_delete(handle)
+      self.handle = nil
+    }
+  }
+
   /// Creates a new `Conversation` from the initialized engine.
   ///
   /// - Parameter ConversationConfig: The configuration for the conversation.
@@ -235,8 +246,6 @@ public actor Engine {
   }
 
   deinit {
-    if let handle = handle {
-      litert_lm_engine_delete(handle)
-    }
+    close()
   }
 }
